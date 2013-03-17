@@ -15,7 +15,7 @@
         <property name="credentialsToPrincipalResolvers">
             <list>
                 <bean class="org.jasig.cas.authentication.principal.UsernamePasswordCredentialsToPrincipalResolver">
-                    <property name="attributeRepository" ref="stubPersonAttributeDao"/>
+                    <property name="attributeRepository" ref="singleRowJdbcPersonAttributeDao"/>
                 </bean>
                 <bean class="org.jasig.cas.authentication.principal.HttpBasedServiceCredentialsToPrincipalResolver" />
             </list>
@@ -38,7 +38,7 @@
         <sec:user name="@@THIS SHOULD BE REPLACED@@" password="notused" authorities="ROLE_ADMIN" />
     </sec:user-service>
 
-    <bean id="stubPersonAttributeDao" class="org.jasig.services.persondir.support.StubPersonAttributeDao">
+    <bean id="attributeRepository" class="org.jasig.services.persondir.support.StubPersonAttributeDao">
         <property name="backingMap">
             <map>
                 <entry key="uid" value="uid" />
@@ -87,7 +87,7 @@
         <constructor-arg index="0" value="MD5" />
 	</bean>
 
-    <bean class="org.jasig.services.persondir.support.jdbc.SingleRowJdbcPersonAttributeDao" id="attributeRepository">
+    <bean class="org.jasig.services.persondir.support.jdbc.SingleRowJdbcPersonAttributeDao" id="singleRowJdbcPersonAttributeDao">
         <constructor-arg index="0" ref="dataSource"/>
         <constructor-arg index="1" value="select login_name,name,email,id from t_user where {0}"/>
         <property name="queryAttributeMapping">
