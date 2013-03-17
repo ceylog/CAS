@@ -14,7 +14,9 @@
 
         <property name="credentialsToPrincipalResolvers">
             <list>
-                <bean class="org.jasig.cas.authentication.principal.UsernamePasswordCredentialsToPrincipalResolver" />
+                <bean class="org.jasig.cas.authentication.principal.UsernamePasswordCredentialsToPrincipalResolver">
+                    <property name="attributeRepository" ref="stubPersonAttributeDao"/>
+                </bean>
                 <bean class="org.jasig.cas.authentication.principal.HttpBasedServiceCredentialsToPrincipalResolver" />
             </list>
         </property>
@@ -22,8 +24,8 @@
         <property name="authenticationHandlers">
             <list>
                 <bean class="org.jasig.cas.authentication.handler.support.HttpBasedServiceCredentialsAuthenticationHandler" p:httpClient-ref="httpClient" />
-                <bean class="com.genertech.cas.authauthentication.handler.GenerDatabaseAuthenticationHandler">
-				    <property name="sql" value="select t.password||','||t.salt password from sys_user t where t.login_name=?" />
+                <bean class="org.jasig.cas.adaptors.jdbc.QueryDatabaseAuthenticationHandler">
+				    <property name="sql" value="select t.password from t_user t where t.login_name=?" />
 				    <property name="dataSource" ref="dataSource" />
 				    <property name="passwordEncoder" ref="generPasswordEncoder" />
 				</bean>
@@ -36,7 +38,7 @@
         <sec:user name="@@THIS SHOULD BE REPLACED@@" password="notused" authorities="ROLE_ADMIN" />
     </sec:user-service>
 
-    <bean id="attributeRepository" class="org.jasig.services.persondir.support.StubPersonAttributeDao">
+    <bean id="stubPersonAttributeDao" class="org.jasig.services.persondir.support.StubPersonAttributeDao">
         <property name="backingMap">
             <map>
                 <entry key="uid" value="uid" />
@@ -75,11 +77,31 @@
     </bean>
     
     <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
-	   <property name="driverClassName"><value>oracle.jdbc.driver.OracleDriver</value></property>
-	   <property name="url"><value>jdbc:oracle:thin:@192.168.3.129:1521:gtf</value></property>
-	   <property name="username"><value>smart_prd</value></property>
-	   <property name="password"><value>smart_prd</value></property>
+	   <property name="driverClassName"><value>com.mysql.jdbc.Driver</value></property>
+	   <property name="url"><value>jdbc:mysql://localhost/cas</value></property>
+	   <property name="username"><value>root</value></property>
+	   <property name="password"><value>root</value></property>
 	</bean>
  
-	<bean id="generPasswordEncoder" class="com.genertech.cas.authauthentication.handler.GenerPasswordEncoder" />
+	<bean id="generPasswordEncoder" class="org.jasig.cas.authentication.handler.DefaultPasswordEncoder" p:characterEncoding="UTF-8">
+        <constructor-arg index="0" value="MD5" />
+	</bean>
+
+    <bean class="org.jasig.services.persondir.support.jdbc.SingleRowJdbcPersonAttributeDao" id="attributeRepository">
+        <constructor-arg index="0" ref="dataSource"/>
+        <constructor-arg index="1" value="select login_name,name,email,id from t_user where {0}"/>
+        <property name="queryAttributeMapping">
+            <map>
+                <entry key="username" value="login_name"/>
+            </map>
+        </property>
+        <property name="resultAttributeMapping">
+            <map>
+                <entry key="login_name" value="username"/>
+                <entry key="name" value="name"/>
+                <entry key="email" value="email"/>
+                <entry key="id" value="id"/>
+            </map>
+        </property>
+    </bean>
 </beans>

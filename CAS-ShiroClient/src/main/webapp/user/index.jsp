@@ -5,6 +5,7 @@
 <%@page import="org.apache.shiro.SecurityUtils"%>
 <%
 	Subject subject = SecurityUtils.getSubject();
+
 %>
 principal : <%=subject.getPrincipal()%><br />
 principals : <%=subject.getPrincipals()%><br />
