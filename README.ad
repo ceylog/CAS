@@ -1,0 +1,7 @@
+Generate SSL Certificates
+
+keytool -genkey -v -alias tomcat -keyalg RSA -keystore tomcat.keystore -dname "CN=localhost,OU=genertech,O=genertech,L=shanghai,ST=shanghai,C=CN" -validity 3650 -storepass genertech -keypass genertech
+
+keytool -export -alias tomcat -storepass genertech -file server.cer -keystore tomcat.keystore
+
+keytool -import -trustcacerts -alias tomcat -file server.cer -keystore cacerts -storepass genertech
